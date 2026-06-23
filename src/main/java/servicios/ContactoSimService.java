@@ -1,6 +1,10 @@
 package servicios;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import interfaces.InterfazContactoSim;
 import modelo.DatosSimulation;
 import modelo.DatosSolicitud;
@@ -14,6 +18,15 @@ import java.util.HashMap;
 @Service
 public class ContactoSimService implements InterfazContactoSim {
 
+	@Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${servicio.consumible.base-url}")
+    private String baseUrl;
+
+    @Value("${servicio.usuario}")
+    private String usuario;
+	
 	private final Map<Integer, DatosSolicitud> solicitudesProvisionales = new HashMap<>();
 	
 	private final List<Entidad> entidades = Arrays.asList(
@@ -24,14 +37,25 @@ public class ContactoSimService implements InterfazContactoSim {
 	
 	@Override
     public int solicitarSimulation(DatosSolicitud sol) {
-		int token = new Random().nextInt(900000) + 100000;
-        solicitudesProvisionales.put(token, sol);
-        return token;
+		String url = baseUrl + "/Solicitud/Solicitar?nombreUsuario=" + usuario;
+		try {
+	        Map<String, Object> response = restTemplate.postForObject(url, sol, Map.class);
+	        return (int) response.get("tokenSolicitud");
+	    } catch (Exception e) {
+	        System.err.println("Error al solicitar: " + e.getMessage());
+	        return -1;
+	    }
     }
 
     @Override
     public DatosSimulation descargarDatos(int ticket) {
-        return null;
+    	String url = baseUrl + "/Resultados?nombreUsuario=" + usuario + "&tok=" + ticket;
+    	try {
+    		return restTemplate.postForObject(url, null, DatosSimulation.class);
+        } catch (Exception e) {
+            System.err.println("Error al descargar: " + e.getMessage());
+            return null; 
+        }
     }
 
     @Override
