@@ -5,6 +5,12 @@ public class Entidad {
 	private String name;
 	private String descripcion;
 	
+	public Entidad(int id, String nombre, String descripcion) {
+        this.id = id;
+        this.name = nombre;
+        this.descripcion = descripcion;
+    }
+
 	public int getId() {
 		return id;
 	}
