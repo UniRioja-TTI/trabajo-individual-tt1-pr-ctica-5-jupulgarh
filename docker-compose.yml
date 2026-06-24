@@ -1,0 +1,14 @@
+services:
+  mi-aplicacion:
+    image: springio/gs-spring-boot-docker
+    ports:
+      - "8081:8081"
+    networks:
+      - red-interna
+  servicio-consumible:
+    image: javillour/servicio-tt1:amd64
+    networks:
+      - red-interna
+networks:
+  red-interna:
+    driver: bridge
